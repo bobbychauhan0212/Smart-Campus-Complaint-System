@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Complaint Details')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="mb-3">
+        <a th:href="@{/student/complaints}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to My Complaints
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Complaint Details Card -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase">Complaint Reference</span>
+                        <h4 class="mb-0 fw-bold text-dark" th:text="'#' + ${complaint.id} + ' - ' + ${complaint.title}">Complaint Title</h4>
+                    </div>
+                    <span class="badge badge-status fs-6" th:classappend="${complaint.status.badgeClass}" th:text="${complaint.status.displayName}">Status</span>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block fw-semibold">Category</small>
+                            <span class="badge bg-light text-dark border px-3 py-2 mt-1" th:text="${complaint.category.displayName}">Category</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block fw-semibold">Priority</small>
+                            <span class="priority-pill mt-1 d-inline-block" 
+                                  th:classappend="${complaint.priority.name() == 'HIGH' ? 'priority-high' : (complaint.priority.name() == 'MEDIUM' ? 'priority-medium' : 'priority-low')}"
+                                  th:text="${complaint.priority.displayName}">Priority</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block fw-semibold">Submitted On</small>
+                            <span class="fw-medium text-dark" th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block fw-semibold">Last Updated</small>
+                            <span class="fw-medium text-dark" th:text="${#temporals.format(complaint.updatedAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-align-left text-primary me-2"></i> Detailed Description</h6>
+                    <div class="p-3 bg-light rounded-3 border text-dark style-description mb-4">
+                        <p class="mb-0 text-break" style="white-space: pre-line;" th:text="${complaint.description}">Description text...</p>
+                    </div>
+
+                    <!-- Admin Remarks Section -->
+                    <div class="card border-0 bg-light rounded-3 p-3 border-start border-4 border-primary">
+                        <h6 class="fw-bold text-primary mb-2">
+                            <i class="fa-solid fa-comment-dots me-2"></i> Official Admin Remarks &amp; Updates
+                        </h6>
+                        <div th:if="${complaint.adminRemarks != null and !#strings.isEmpty(complaint.adminRemarks)}">
+                            <p class="mb-0 text-dark" style="white-space: pre-line;" th:text="${complaint.adminRemarks}">Remarks from administration...</p>
+                        </div>
+                        <div th:if="${complaint.adminRemarks == null or #strings.isEmpty(complaint.adminRemarks)}">
+                            <p class="mb-0 text-muted fst-italic">No official remarks added yet. Administration is reviewing your complaint.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Timeline & Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-timeline text-primary me-2"></i> Status Progress</h6>
+                
+                <ul class="list-unstyled position-relative border-start border-2 border-light ms-2 ps-3 mb-0">
+                    <!-- PENDING Step -->
+                    <li class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-circle-check text-warning me-2"></i>
+                            <div>
+                                <strong class="d-block small">Complaint Raised</strong>
+                                <span class="text-muted extra-small" th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy')}">Date</span>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- IN_PROGRESS Step -->
+                    <li class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid" 
+                               th:classappend="${complaint.status.name() == 'IN_PROGRESS' or complaint.status.name() == 'RESOLVED' ? 'fa-circle-check text-primary' : 'fa-circle text-muted'}"></i>
+                            <div class="ms-2">
+                                <strong class="d-block small">Under Review / In Progress</strong>
+                                <span class="text-muted extra-small">Assigned to department</span>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- RESOLVED / REJECTED Step -->
+                    <li>
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid" 
+                               th:classappend="${complaint.status.name() == 'RESOLVED' ? 'fa-circle-check text-success' : (complaint.status.name() == 'REJECTED' ? 'fa-circle-xmark text-danger' : 'fa-circle text-muted')}"></i>
+                            <div class="ms-2">
+                                <strong class="d-block small" 
+                                        th:text="${complaint.status.name() == 'REJECTED' ? 'Rejected' : 'Resolved'}">Resolution</strong>
+                                <span class="text-muted extra-small">Final status update</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('My Complaints')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> My Complaints</h3>
+            <p class="text-muted mb-0">Track all your submitted complaints and their current resolution status.</p>
+        </div>
+        <a th:href="@{/student/complaints/new}" class="btn btn-primary rounded-pill px-4">
+            <i class="fa-solid fa-plus me-1"></i> New Complaint
+        </a>
+    </div>
+
+    <div class="custom-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Complaint Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Date Submitted</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 120px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${complaints}">
+                        <td class="fw-bold" th:text="'#' + ${c.id}">#1</td>
+                        <td>
+                            <a th:href="@{/student/complaints/{id}(id=${c.id})}" class="fw-semibold text-dark text-decoration-none">
+                                <span th:text="${c.title}">Complaint Title</span>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-2 py-1" th:text="${c.category.displayName}">Category</span>
+                        </td>
+                        <td>
+                            <span class="priority-pill" 
+                                  th:classappend="${c.priority.name() == 'HIGH' ? 'priority-high' : (c.priority.name() == 'MEDIUM' ? 'priority-medium' : 'priority-low')}"
+                                  th:text="${c.priority.displayName}">Priority</span>
+                        </td>
+                        <td th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">01 Jan 2026</td>
+                        <td>
+                            <span class="badge badge-status" th:classappend="${c.status.badgeClass}" th:text="${c.status.displayName}">PENDING</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/student/complaints/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                <i class="fa-solid fa-eye me-1"></i> Details
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(complaints)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-clipboard-question fs-2 d-block mb-3 text-secondary"></i>
+                            <h5>No complaints found</h5>
+                            <p class="mb-3">You have not submitted any complaints yet.</p>
+                            <a th:href="@{/student/complaints/new}" class="btn btn-primary btn-sm rounded-pill">
+                                <i class="fa-solid fa-plus me-1"></i> Submit a Complaint Now
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

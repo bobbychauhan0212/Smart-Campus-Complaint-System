@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('All Complaints - Admin')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-folder-open text-primary me-2"></i> All Student Complaints</h3>
+            <p class="text-muted mb-0">Search, filter, inspect, and update student complaints.</p>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar Card -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+        <form th:action="@{/admin/complaints}" method="get" class="row g-3 align-items-center">
+            
+            <!-- Search Box -->
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">Search Keywords</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="search" th:value="${searchQuery}" class="form-control" 
+                           placeholder="Search ID, Student Name, Roll No, Title...">
+                </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option th:each="st : ${statuses}" 
+                            th:value="${st.name()}" 
+                            th:selected="${selectedStatus != null and selectedStatus.name() == st.name()}"
+                            th:text="${st.displayName}">Status</option>
+                </select>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    <option th:each="cat : ${categories}" 
+                            th:value="${cat.name()}" 
+                            th:selected="${selectedCategory != null and selectedCategory.name() == cat.name()}"
+                            th:text="${cat.displayName}">Category</option>
+                </select>
+            </div>
+
+            <!-- Priority Filter -->
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-semibold text-muted mb-1">Priority</label>
+                <select name="priority" class="form-select">
+                    <option value="">All Priorities</option>
+                    <option th:each="pri : ${priorities}" 
+                            th:value="${pri.name()}" 
+                            th:selected="${selectedPriority != null and selectedPriority.name() == pri.name()}"
+                            th:text="${pri.displayName}">Priority</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-lg-1 col-md-12 d-flex align-items-end justify-content-end">
+                <div class="d-flex gap-2 w-100">
+                    <button type="submit" class="btn btn-primary w-100" title="Apply Filters">
+                        <i class="fa-solid fa-filter"></i>
+                    </button>
+                    <a th:href="@{/admin/complaints}" class="btn btn-outline-secondary" title="Reset Filters">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Complaints Data Table -->
+    <div class="custom-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Details</th>
+                        <th>Complaint Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${complaints}">
+                        <td class="fw-bold" th:text="'#' + ${c.id}">#1</td>
+                        <td>
+                            <strong class="d-block text-dark" th:text="${c.student.name}">Student Name</strong>
+                            <small class="text-muted" th:text="${c.student.rollNo} + ' &bull; ' + ${c.student.department}">STU001</small>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/complaints/{id}(id=${c.id})}" class="fw-semibold text-dark text-decoration-none">
+                                <span th:text="${c.title}">Title</span>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" th:text="${c.category.displayName}">Category</span>
+                        </td>
+                        <td>
+                            <span class="priority-pill" 
+                                  th:classappend="${c.priority.name() == 'HIGH' ? 'priority-high' : (c.priority.name() == 'MEDIUM' ? 'priority-medium' : 'priority-low')}"
+                                  th:text="${c.priority.displayName}">Priority</span>
+                        </td>
+                        <td th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy, HH:mm')}">Date</td>
+                        <td>
+                            <span class="badge badge-status" th:classappend="${c.status.badgeClass}" th:text="${c.status.displayName}">Status</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/admin/complaints/{id}(id=${c.id})}" class="btn btn-sm btn-primary rounded-pill">
+                                Review &amp; Update <i class="fa-solid fa-pen-to-square ms-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(complaints)}">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-magnifying-glass fs-2 d-block mb-3 text-secondary"></i>
+                            <h5>No complaints match the filter criteria</h5>
+                            <p class="mb-0">Try clearing or adjusting your search filters above.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

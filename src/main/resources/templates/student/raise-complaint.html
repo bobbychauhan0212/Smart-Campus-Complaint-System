@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Raise Complaint')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <h4 class="mb-1 text-white fw-bold"><i class="fa-solid fa-file-circle-plus me-2"></i> Raise a New Complaint</h4>
+                    <p class="mb-0 text-white-50 small">Submit your complaint detailing the issue so the administration can investigate and resolve it.</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/student/complaints/new}" th:object="${complaintDto}" method="post" class="needs-validation" novalidate>
+
+                        <!-- Complaint Title -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label">Complaint Title <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{title}" class="form-control" id="title" 
+                                   placeholder="Brief summary of the issue (e.g. WiFi down in Hostel Block A)" 
+                                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+                                Title is required (5 to 150 characters)
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <!-- Category Dropdown -->
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select th:field="*{category}" class="form-select" id="category" 
+                                        th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option th:each="cat : ${categories}" 
+                                            th:value="${cat.name()}" 
+                                            th:text="${cat.displayName}">Category</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">
+                                    Category selection is required
+                                </div>
+                            </div>
+
+                            <!-- Priority Dropdown -->
+                            <div class="col-md-6">
+                                <label for="priority" class="form-label">Priority Level <span class="text-danger">*</span></label>
+                                <select th:field="*{priority}" class="form-select" id="priority" 
+                                        th:classappend="${#fields.hasErrors('priority')} ? 'is-invalid' : ''" required>
+                                    <option value="">-- Select Priority --</option>
+                                    <option th:each="pri : ${priorities}" 
+                                            th:value="${pri.name()}" 
+                                            th:text="${pri.displayName}">Priority</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}">
+                                    Priority selection is required
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Complaint Description <span class="text-danger">*</span></label>
+                            <textarea th:field="*{description}" class="form-control" id="description" rows="5" 
+                                      placeholder="Provide full details, locations, dates, and specific information regarding the complaint..."
+                                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''" required></textarea>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                                Description is required (minimum 10 characters)
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 mb-4 text-muted small">
+                            <i class="fa-solid fa-circle-info text-primary me-1"></i>
+                            <strong>Note:</strong> Submitted complaints are assigned an initial status of <strong>PENDING</strong> and routed directly to college administrators.
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a th:href="@{/student/dashboard}" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Submit Complaint
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

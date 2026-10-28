@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Page Not Found (404)')}"></head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container my-auto py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                <div class="text-primary mb-3">
+                    <i class="fa-solid fa-compass display-1"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-2">404 - Page Not Found</h2>
+                <p class="text-muted mb-4">
+                    The requested page or complaint record could not be found. Please check the URL or return to the main dashboard.
+                </p>
+                <div>
+                    <a th:href="@{/}" class="btn btn-primary rounded-pill px-4">
+                        <i class="fa-solid fa-house me-2"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

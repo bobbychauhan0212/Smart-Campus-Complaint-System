@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Review Complaint - Admin')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <a th:href="@{/admin/complaints}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to All Complaints
+        </a>
+        <span class="badge badge-status fs-6" th:classappend="${complaint.status.badgeClass}" th:text="${complaint.status.displayName}">Current Status</span>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- Complaint Content Card -->
+        <div class="col-lg-7 col-xl-8">
+            
+            <!-- Student Information Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+                    <i class="fa-solid fa-user-graduate text-primary me-2"></i> Student Information
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block fw-semibold">Student Name</small>
+                        <span class="fw-bold text-dark fs-6" th:text="${complaint.student.name}">Student Name</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block fw-semibold">Roll Number / Student ID</small>
+                        <span class="fw-bold text-primary fs-6" th:text="${complaint.student.rollNo}">STU001</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block fw-semibold">Email Address</small>
+                        <span class="text-dark" th:text="${complaint.student.email}">student@test.com</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block fw-semibold">Department &amp; Year</small>
+                        <span class="text-dark" th:text="${complaint.student.department} + ' (Year ' + ${complaint.student.year} + ')'">Computer Science</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaint Details Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+                    <i class="fa-solid fa-file-lines text-primary me-2"></i> Complaint Details
+                </h5>
+
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-semibold">Title</small>
+                    <h5 class="fw-bold text-dark mt-1" th:text="'#' + ${complaint.id} + ' - ' + ${complaint.title}">Title</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-sm-3">
+                        <small class="text-muted d-block fw-semibold">Category</small>
+                        <span class="badge bg-light text-dark border px-3 py-2 mt-1" th:text="${complaint.category.displayName}">Category</span>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <small class="text-muted d-block fw-semibold">Priority</small>
+                        <span class="priority-pill mt-1 d-inline-block" 
+                              th:classappend="${complaint.priority.name() == 'HIGH' ? 'priority-high' : (complaint.priority.name() == 'MEDIUM' ? 'priority-medium' : 'priority-low')}"
+                              th:text="${complaint.priority.displayName}">Priority</span>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <small class="text-muted d-block fw-semibold">Created Date</small>
+                        <span class="fw-medium text-dark" th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <small class="text-muted d-block fw-semibold">Last Updated</small>
+                        <span class="fw-medium text-dark" th:text="${#temporals.format(complaint.updatedAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-semibold mb-2">Description</small>
+                    <div class="p-3 bg-light rounded-3 border text-dark style-description">
+                        <p class="mb-0 text-break" style="white-space: pre-line;" th:text="${complaint.description}">Description content...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Update Status Form -->
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 90px;">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Update Complaint Status
+                </h5>
+                
+                <form th:action="@{/admin/complaints/{id}/status(id=${complaint.id})}" 
+                      th:object="${statusDto}" method="post" class="needs-validation" novalidate>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Resolution Status <span class="text-danger">*</span></label>
+                        <select th:field="*{status}" class="form-select" id="status" required>
+                            <option th:each="st : ${statuses}" 
+                                    th:value="${st.name()}" 
+                                    th:text="${st.displayName}">Status</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="adminRemarks" class="form-label">Admin Remarks &amp; Action Notes</label>
+                        <textarea th:field="*{adminRemarks}" class="form-control" id="adminRemarks" rows="5" 
+                                  placeholder="Enter remarks explaining status update or action taken (e.g. 'Issue forwarded to Maintenance Department for immediate resolution')."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Save &amp; Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>
